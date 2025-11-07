@@ -2,48 +2,64 @@
 #include <Adafruit_BMP280.h>
 #include <SPI.h>
 #include <SD.h>
+
 #define SD_CS 5 // Chip select for SD card
+#define SEALEVELPRESSURE_HPA (1013.25) // Standard sea-level pressure
+
 Adafruit_BMP280 bmp; // I2C
 File dataFile;
+
 void setup() {
-Serial.begin(115200);
-delay(1000);
-// Initialize BMP280
-if (!bmp.begin()) {
-Serial.println("Could not find a valid BMP280 sensor, check wiring!");
-while (1);
+  Serial.begin(115200);
+  delay(1000);
+
+  // Initialize BMP280
+  if (!bmp.begin(0x76)) {
+    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    while (1);
+  }
+  Serial.println("BMP280 initialized.");
+
+  // Initialize SD card
+  if (!SD.begin(SD_CS)) {
+    Serial.println("SD card initialization failed!");
+    while (1);
+  }
+  Serial.println("SD card initialized.");
+
+  // Create/Open file and write header
+  dataFile = SD.open("/SD_Card.txt", FILE_WRITE);
+  if (dataFile) {
+    dataFile.println("Temperature (C), Pressure (hPa), Altitude (m)");
+    dataFile.close();
+    Serial.println("Header written to SD_Card.txt");
+  } else {
+    Serial.println("Failed to open SD_Card.txt for writing.");
+  }
 }
-Serial.println("BMP280 initialized.");
-// Initialize SD card
-if (!SD.begin(SD_CS)) {
-Serial.println("SD card initialization failed!");
-while (1);
-}
-Serial.println("SD card initialized.");
-// Create/Open file
-dataFile = SD.open("/SD_Card.txt", FILE_WRITE);
-if (dataFile) {
-dataFile.println("Temperature (C), Pressure (hPa)");
-dataFile.close();
-Serial.println("Header written to SD_Card.txt");
-} else {
-Serial.println("Failed to open SD_Card.txt for writing.");
-}
-}
+
 void loop() {
-float temp = bmp.readTemperature();
-float pressure = bmp.readPressure() / 100.0; // Convert to hPa
-// Open file to append data
-dataFile = SD.open("/SD_Card.txt", FILE_APPEND);
-if (dataFile) {
-dataFile.print(temp);
-dataFile.print(", ");
-dataFile.println(pressure);
-dataFile.close();
-Serial.println("Data written.");
-} else {
-Serial.println("Error opening SD_Card.txt");
+  float temp = bmp.readTemperature();
+  float pressure = bmp.readPressure() / 100.0; // Convert to hPa
+  float altitude = bmp.readAltitude(SEALEVELPRESSURE_HPA);
+
+  // Open file to append data
+  dataFile = SD.open("/SD_Card.txt", FILE_APPEND);
+  if (dataFile) {
+    dataFile.print(temp);
+    dataFile.print(", ");
+    dataFile.print(pressure);
+    dataFile.print(", ");
+    dataFile.println(altitude);
+    dataFile.close();
+    Serial.println("Data written: ");
+    Serial.print("T = "); Serial.print(temp);
+    Serial.print(" °C, P = "); Serial.print(pressure);
+    Serial.print(" hPa, Alt = "); Serial.print(altitude);
+    Serial.println(" m");
+  } else {
+    Serial.println("Error opening SD_Card.txt");
+  }
+
+  delay(2000); // Log every 2 seconds
 }
-delay(2000); // Log every 5 seconds
-}
-w
