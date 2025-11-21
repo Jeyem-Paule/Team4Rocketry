@@ -61,5 +61,5 @@ void loop() {
     Serial.println("Error opening SD_Card.txt");
   }
 
-  delay(2000); // Log every 2 seconds
+  delay(500); // Log every 2 seconds
 }
