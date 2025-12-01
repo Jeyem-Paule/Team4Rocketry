@@ -9,9 +9,13 @@
 Adafruit_BMP280 bmp; // I2C
 File dataFile;
 
+unsigned long startMillis;
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
+
+  startMillis = millis(); // Start the timer
 
   // Initialize BMP280
   if (!bmp.begin(0x76)) {
@@ -30,7 +34,7 @@ void setup() {
   // Create/Open file and write header
   dataFile = SD.open("/SD_Card.txt", FILE_WRITE);
   if (dataFile) {
-    dataFile.println("Temperature (C), Pressure (hPa), Altitude (m)");
+    dataFile.println("Temperature (C), Pressure (hPa), Altitude (m), Time (s)");
     dataFile.close();
     Serial.println("Header written to SD_Card.txt");
   } else {
@@ -42,6 +46,9 @@ void loop() {
   float temp = bmp.readTemperature();
   float pressure = bmp.readPressure() / 100.0; // Convert to hPa
   float altitude = bmp.readAltitude(SEALEVELPRESSURE_HPA);
+  
+  // Calculate elapsed time
+  float elapsedTime = (millis() - startMillis) / 1000.0;
 
   // Open file to append data
   dataFile = SD.open("/SD_Card.txt", FILE_APPEND);
@@ -50,16 +57,22 @@ void loop() {
     dataFile.print(", ");
     dataFile.print(pressure);
     dataFile.print(", ");
-    dataFile.println(altitude);
+    dataFile.print(altitude);
+    dataFile.print(", ");
+    dataFile.println(elapsedTime);
+
     dataFile.close();
+
     Serial.println("Data written: ");
     Serial.print("T = "); Serial.print(temp);
     Serial.print(" °C, P = "); Serial.print(pressure);
     Serial.print(" hPa, Alt = "); Serial.print(altitude);
-    Serial.println(" m");
+    Serial.print(" m, Time = ");
+    Serial.print(elapsedTime);
+    Serial.println(" s");
   } else {
     Serial.println("Error opening SD_Card.txt");
   }
 
-  delay(500); // Log every 2 seconds
+  delay(500); // Log every 0.5 seconds
 }
