@@ -3,9 +3,7 @@ This repository documents the design, simulation, and fabrication of an L1 high 
 ________________
 
 Main Overview
-Motor: Aerotech H135W
-Total Length: 32.67in 
-Simulation tool: OpenRocket 
-CAD: Solidworks 
-
-________________
+- Motor: Aerotech H135W
+- Total Length: 32.67in 
+- Simulation tool: OpenRocket 
+- CAD: Solidworks 
