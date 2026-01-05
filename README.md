@@ -27,4 +27,6 @@ and physical constraints.
 ## Project Status
 ✅ Design complete  
 ✅ Fabricated  
-✅ Successfully flown
+✅ Successfully flown and recovered
+
+Would have gained l1 Certification if built individually and flown through test. Landed 800m from launch site, very very long walk but managed to recover in one piece unscathed. Very successful Technical Team Project, props to members of Team 4
